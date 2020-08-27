@@ -1,9 +1,9 @@
 OntCversion = '2.0.0'
 """
-ETHX denotes the cross chain ontology asset same as ether in ethereum
+oBTC denotes the cross chain BTC asset on Ontology, which is same as WBTC in Ethereum
 """
 from ontology.interop.System.Storage import GetContext, Get, Put, Delete
-from ontology.interop.System.Runtime import Notify, CheckWitness, GetTime
+from ontology.interop.System.Runtime import CheckWitness
 from ontology.interop.System.Action import RegisterAction
 from ontology.builtins import concat
 from ontology.interop.Ontology.Runtime import Base58ToAddress
@@ -13,15 +13,14 @@ ApprovalEvent = RegisterAction("approval", "owner", "spender", "amount")
 
 ctx = GetContext()
 
-NAME = 'Ether'
-SYMBOL = 'ETH'
-DECIMALS = 18
-FACTOR = 1000000000000000000
-Operator = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")  # root operator
-CROSS_CHAIN_CONTRACT_ADDRESS = bytearray(
-    b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x09')
+NAME = 'oBTC'
+SYMBOL = 'oBTC'
+DECIMALS = 6
+FACTOR = 1000000
+Operator = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")
+CROSS_CHAIN_CONTRACT_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x09')
 BALANCE_PREFIX = bytearray(b'\x01')
-APPROVE_PREFIX = b'\x02'
+APPROVE_PREFIX = bytearray(b'\x02')
 SUPPLY_KEY = 'TotalSupply'
 
 PROXY_HASH_KEY = "Proxy"
@@ -33,7 +32,6 @@ def Main(operation, args):
     :param args:
     :return:
     """
-    # 'init' has to be invokded first after deploying the contract to store the necessary and important info in the blockchain
     if operation == 'delegateToProxy':
         return delegateToProxy(args[0], args[1])
     if operation == 'name':
@@ -95,6 +93,8 @@ def delegateToProxy(proxyReversedHash, amount):
 
     Put(ctx, concat(BALANCE_PREFIX, proxyReversedHash), balanceOf(proxyReversedHash) + amount)
     Put(ctx, SUPPLY_KEY, totalSupply() + amount)
+    # supply should be always no more than 21 million
+    assert (totalSupply() <= 2100000000000000)
     TransferEvent("", proxyReversedHash, amount)
     return True
 

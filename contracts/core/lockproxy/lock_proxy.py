@@ -1,21 +1,23 @@
-from ontology.libont import byte2int, hexstring2bytes, hexstring2address, bytes2hexstring
+OntCversion = '2.0.0'
+"""
+Smart contract for locking and unlocking cross chain asset between Ontology and other chains
+"""
 from ontology.interop.Ontology.Native import Invoke
 from ontology.interop.Ontology.Contract import Migrate
 from ontology.interop.System.Action import RegisterAction
 from ontology.interop.Ontology.Runtime import Base58ToAddress
-from ontology.interop.System.Storage import Put, GetContext, Get, Delete
+from ontology.interop.System.Storage import Put, GetContext, Get
 from ontology.interop.System.ExecutionEngine import GetExecutingScriptHash
 from ontology.interop.System.Runtime import CheckWitness, Notify, Serialize, Deserialize
 from ontology.builtins import concat, state, append
 from ontology.libont import bytearray_reverse
-from ontology.interop.System.App import RegisterAppCall, DynamicAppCall
-from ontology.libont import str, AddressFromVmCode
+from ontology.interop.System.App import DynamicAppCall
+from ontology.libont import AddressFromVmCode
 
 ZERO_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 ONT_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01')
 ONG_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02')
-CROSS_CHAIN_CONTRACT_ADDRESS = bytearray(
-    b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x09')
+CROSS_CHAIN_CONTRACT_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x09')
 CONTRACT_ADDRESS = GetExecutingScriptHash()
 
 PROXY_HASH = "ProxyHash"
@@ -33,7 +35,7 @@ SelfContractAddress = GetExecutingScriptHash()
 
 
 def Main(operation, args):
-    if operation == "init"
+    if operation == "init":
         return init()
     if operation == "bindProxyHash":
         assert (len(args) == 2)
