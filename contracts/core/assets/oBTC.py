@@ -13,8 +13,8 @@ ApprovalEvent = RegisterAction("approval", "owner", "spender", "amount")
 
 ctx = GetContext()
 
-NAME = 'oBTC'
-SYMBOL = 'oBTC'
+NAME = 'oWBTC'
+SYMBOL = 'oWBTC'
 DECIMALS = 6
 FACTOR = 1000000
 Operator = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")
