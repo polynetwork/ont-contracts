@@ -1,6 +1,6 @@
 OntCversion = '2.0.0'
 """
-oETH denotes the cross chain ETH asset on Ontology, which is same as Ether in Ethereum
+oUSDC denotes the cross chain USDC asset on Ontology, which is same as USDC in Ethereum
 """
 from ontology.interop.System.Storage import GetContext, Get, Put, Delete
 from ontology.interop.System.Runtime import CheckWitness
@@ -13,10 +13,10 @@ ApprovalEvent = RegisterAction("approval", "owner", "spender", "amount")
 
 ctx = GetContext()
 
-NAME = 'oETH'
-SYMBOL = 'oETH'
-DECIMALS = 18
-FACTOR = 1000000000000000000
+NAME = 'oUSDC'
+SYMBOL = 'oUSDC'
+DECIMALS = 6
+FACTOR = 1000000
 Operator = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")
 CROSS_CHAIN_CONTRACT_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x09')
 BALANCE_PREFIX = bytearray(b'\x01')
