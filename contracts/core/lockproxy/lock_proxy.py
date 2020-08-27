@@ -20,6 +20,7 @@ CONTRACT_ADDRESS = GetExecutingScriptHash()
 
 PROXY_HASH = "ProxyHash"
 ASSET_HASH = "Asset"
+OPERATOR_PREFIX = "Operator"
 
 FROM_ASSET_LIST_KEY = "FromAssetList"
 
@@ -32,6 +33,8 @@ SelfContractAddress = GetExecutingScriptHash()
 
 
 def Main(operation, args):
+    if operation == "init"
+        return init()
     if operation == "bindProxyHash":
         assert (len(args) == 2)
         toChainId = args[0]
@@ -43,6 +46,10 @@ def Main(operation, args):
         toChainId = args[1]
         toAssetHash = args[2]
         return bindAssetHash(fromAssetHash, toChainId, toAssetHash)
+    if operation == "transferOperator":
+        assert (len(args) == 1)
+        newOperator = args[0]
+        return transferOperator(newOperator)
     if operation == "getProxyHash":
         assert (len(args) == 1)
         toChainId = args[0]
@@ -68,7 +75,6 @@ def Main(operation, args):
         return unlock(params, fromContractAddr, fromChainId)
     if operation == "getBalanceFor":
         return getBalanceFor(args[0])
-
     if operation == "upgrade":
         assert (len(args) == 7)
         code = args[0]
@@ -80,41 +86,31 @@ def Main(operation, args):
         description = args[6]
         return upgrade(code, needStorage, name, version, author, email, description)
 
-    if operation == "test_deserialize":
-        return test_deserialize(args[0])
-    if operation == "test_serialize":
-        return test_serialize(args[0], args[1], args[2])
-
-    
     return True
 
-
-def test_deserialize(buff):
-    return _deserialzieArgs(buff)
-
-
-def test_serialize(assetHash, address, amount):
-    buff = _serialzieArgs([assetHash, address, amount])
-    return buff
-
-
-
-
+def init():
+    assert(len(Get(GetContext(), OPERATOR_PREFIX)) == 0)
+    Put(GetContext(), OPERATOR_PREFIX, Operator)
+    return True
 
 def bindProxyHash(toChainId, targetProxyHash):
-    assert (CheckWitness(Operator))
+    assert (CheckWitness(Get(GetContext(), OPERATOR_PREFIX)))
     Put(GetContext(), concat(PROXY_HASH, toChainId), targetProxyHash)
     Notify(["bindProxyHash", toChainId, targetProxyHash])
     return True
 
 
 def bindAssetHash(fromAssetHash, toChainId, toAssetHash):
-    assert (CheckWitness(Operator))
+    assert (CheckWitness(Get(GetContext(), OPERATOR_PREFIX)))
     assert (_addFromAssetHash(fromAssetHash))
     Put(GetContext(), concat(ASSET_HASH, concat(fromAssetHash, toChainId)), toAssetHash)
     curBalance = getBalanceFor(fromAssetHash)
     Notify(["bindAssetHash", fromAssetHash, toChainId, toAssetHash, curBalance])
     return True
+
+def transferOperator(newOperator):
+    assert (CheckWitness(Get(GetContext(), OPERATOR_PREFIX)))
+    Put(GetContext(), OPERATOR_PREFIX, newOperator)
 
 
 def getProxyHash(toChainId):
@@ -123,7 +119,6 @@ def getProxyHash(toChainId):
 
 def getAssetHash(fromAssetHash, toChainId):
     return Get(GetContext(), concat(ASSET_HASH, concat(fromAssetHash, toChainId)))
-
 
 def lock(fromAssetHash, fromAddress, toChainId, toAddress, amount):
     """
@@ -146,7 +141,7 @@ def lock(fromAssetHash, fromAddress, toChainId, toAddress, amount):
     argsList = [toAssetHash, toAddress, amount]
     # invoke the native cross chain manager contract to make transaction to target chain
     inputArgs = _serialzieArgs(argsList)
-    
+
     toProxyHash = getProxyHash(toChainId)
     # make sure the toProxyHash is not empty
     assert (len(toProxyHash) != 0)
@@ -303,7 +298,7 @@ def upgrade(code, needStorage, name, version, author, email, description):
     :param code:new smart contract avm code.
     :return: True or raise exception.
     """
-    assert (CheckWitness(Operator))
+    assert (CheckWitness(Get(GetContext(), OPERATOR_PREFIX)))
     newContractHash = AddressFromVmCode(code)
     newContractAddr = bytearray_reverse(newContractHash)
     ontBalance = _getSelfONTBalance()
