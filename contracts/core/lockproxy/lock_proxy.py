@@ -111,6 +111,7 @@ def bindAssetHash(fromAssetHash, toChainId, toAssetHash):
 def transferOperator(newOperator):
     assert (CheckWitness(Get(GetContext(), OPERATOR_PREFIX)))
     Put(GetContext(), OPERATOR_PREFIX, newOperator)
+    return True
 
 
 def getProxyHash(toChainId):
