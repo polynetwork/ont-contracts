@@ -15,8 +15,8 @@ ctx = GetContext()
 
 NAME = 'oWBTC'
 SYMBOL = 'oWBTC'
-DECIMALS = 6
-FACTOR = 1000000
+DECIMALS = 8
+FACTOR = 100000000
 Operator = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")
 CROSS_CHAIN_CONTRACT_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x09')
 BALANCE_PREFIX = bytearray(b'\x01')
