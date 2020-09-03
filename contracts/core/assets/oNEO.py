@@ -1,30 +1,31 @@
 OntCversion = '2.0.0'
 """
-oBTC denotes the cross chain BTC asset on Ontology, which is same as WBTC in Ethereum
+NEO asset in Ontology chain, , which is originated from NEO blockchain
 """
 from ontology.interop.System.Storage import GetContext, Get, Put, Delete
-from ontology.interop.System.Runtime import CheckWitness
+from ontology.interop.System.Runtime import Notify, CheckWitness, GetTime
 from ontology.interop.System.Action import RegisterAction
 from ontology.builtins import concat
 from ontology.interop.Ontology.Runtime import Base58ToAddress
+from ontology.interop.System.ExecutionEngine import GetExecutingScriptHash
 
 TransferEvent = RegisterAction("transfer", "from", "to", "amount")
 ApprovalEvent = RegisterAction("approval", "owner", "spender", "amount")
 
 ctx = GetContext()
 
-NAME = 'oWBTC'
-SYMBOL = 'oWBTC'
+NAME = 'oNEO'
+SYMBOL = 'oNEO'
 DECIMALS = 8
 FACTOR = 100000000
+MaxSupply = 100000000
 Operator = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")
-CROSS_CHAIN_CONTRACT_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x09')
 BALANCE_PREFIX = bytearray(b'\x01')
 APPROVE_PREFIX = bytearray(b'\x02')
 SUPPLY_KEY = 'TotalSupply'
 
 PROXY_HASH_KEY = "Proxy"
-
+SelfContractAddress = GetExecutingScriptHash()
 
 def Main(operation, args):
     """
@@ -32,6 +33,7 @@ def Main(operation, args):
     :param args:
     :return:
     """
+    # 'init' has to be invokded first after deploying the contract to store the necessary and important info in the blockchain
     if operation == 'delegateToProxy':
         return delegateToProxy(args[0], args[1])
     if operation == 'name':
@@ -93,9 +95,9 @@ def delegateToProxy(proxyReversedHash, amount):
 
     Put(ctx, concat(BALANCE_PREFIX, proxyReversedHash), balanceOf(proxyReversedHash) + amount)
     Put(ctx, SUPPLY_KEY, totalSupply() + amount)
-    # supply should be always no more than 21 million
-    assert (totalSupply() <= 2100000000000000)
     TransferEvent("", proxyReversedHash, amount)
+
+
     return True
 
 
@@ -144,9 +146,14 @@ def transfer(from_acct, to_acct, amount):
     :param amount: the amount of the tokens to be transferred, >= 0
     :return: True means success, False or raising exception means failure.
     """
+    assert (CheckWitness(from_acct))
+    assert(_transfer(from_acct, to_acct, amount))
+
+    return True
+
+def _transfer(from_acct, to_acct, amount):
     assert (len(to_acct) == 20)
     assert (len(from_acct) == 20)
-    assert (CheckWitness(from_acct))
     assert (amount > 0)
 
     fromKey = concat(BALANCE_PREFIX, from_acct)
