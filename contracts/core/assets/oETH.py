@@ -10,6 +10,7 @@ from ontology.interop.Ontology.Runtime import Base58ToAddress
 
 TransferEvent = RegisterAction("transfer", "from", "to", "amount")
 ApprovalEvent = RegisterAction("approval", "owner", "spender", "amount")
+TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwner")
 
 ctx = GetContext()
 
@@ -18,6 +19,7 @@ SYMBOL = 'oETH'
 DECIMALS = 18
 FACTOR = 1000000000000000000
 Operator = Base58ToAddress("ANXE3XovCwBH1ckQnPc6vKYiTwRXyrVToD")
+ZERO_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 CROSS_CHAIN_CONTRACT_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x09')
 BALANCE_PREFIX = bytearray(b'\x01')
 APPROVE_PREFIX = bytearray(b'\x02')

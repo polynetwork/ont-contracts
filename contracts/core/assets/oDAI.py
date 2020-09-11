@@ -20,6 +20,7 @@ DECIMALS = 18
 FACTOR = 1000000000000000000
 Operator = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")
 CROSS_CHAIN_CONTRACT_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x09')
+ZERO_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 BALANCE_PREFIX = bytearray(b'\x01')
 APPROVE_PREFIX = bytearray(b'\x02')
 SUPPLY_KEY = 'TotalSupply'

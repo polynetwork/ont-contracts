@@ -11,6 +11,7 @@ from ontology.interop.System.ExecutionEngine import GetExecutingScriptHash
 
 TransferEvent = RegisterAction("transfer", "from", "to", "amount")
 ApprovalEvent = RegisterAction("approval", "owner", "spender", "amount")
+TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwner")
 
 ctx = GetContext()
 
@@ -20,11 +21,13 @@ DECIMALS = 8
 FACTOR = 100000000
 MaxSupply = 100000000
 Operator = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")
+ZERO_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 BALANCE_PREFIX = bytearray(b'\x01')
 APPROVE_PREFIX = bytearray(b'\x02')
 SUPPLY_KEY = 'TotalSupply'
 
 PROXY_HASH_KEY = "Proxy"
+OWNER_KEY = "Owner"
 SelfContractAddress = GetExecutingScriptHash()
 
 def Main(operation, args):
@@ -34,6 +37,12 @@ def Main(operation, args):
     :return:
     """
     # 'init' has to be invokded first after deploying the contract to store the necessary and important info in the blockchain
+    if operation == 'init':
+        return init()
+    if operation == 'transferOwnership':
+        return transferOwnership(args[0])
+    if operation == 'getOwner':
+        return getOwner()
     if operation == 'delegateToProxy':
         return delegateToProxy(args[0], args[1])
     if operation == 'name':
@@ -79,6 +88,22 @@ def Main(operation, args):
         return getProxyHash()
     return False
 
+def init():
+    assert (CheckWitness(Operator))
+    assert (len(getOwner()) == 0)
+    Put(GetContext(), OWNER_KEY, Operator)
+    return True
+
+def transferOwnership(newOwner):
+    oldOwner = getOwner()
+    assert (CheckWitness(oldOwner))
+    assert (len(newOwner) == 20 and newOwner != ZERO_ADDRESS)
+    Put(GetContext(), OWNER_KEY, newOwner)
+    TransferOwnershipEvent(oldOwner, newOwner)
+    return True
+
+def getOwner():
+    return Get(GetContext(), OWNER_KEY)
 
 def delegateToProxy(proxyReversedHash, amount):
     """
