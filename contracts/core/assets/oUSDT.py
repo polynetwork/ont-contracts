@@ -107,7 +107,7 @@ def delegateToProxy(proxyReversedHash, amount):
     initialize the contract, put some important info into the storage in the blockchain
     :return:
     """
-    assert (CheckWitness(Operator))
+    assert (CheckWitness(getOwner()))
 
     storedProxy = getProxyHash()
     if not storedProxy:
