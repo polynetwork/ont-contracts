@@ -308,7 +308,7 @@ def totalSupply():
     """
     :return: the total supply of the token
     """
-    return Get(ctx, TOTAL_SUPPLY_KEY)
+    return Get(ctx, TOTAL_SUPPLY_KEY) + 0
 
 
 def balanceOf(account):
@@ -316,7 +316,7 @@ def balanceOf(account):
     :param account:
     :return: the token balance of account
     """
-    return Get(ctx, concat(BALANCE_KEY, account))
+    return Get(ctx, concat(BALANCE_KEY, account)) + 0
 
 
 def transfer(from_acct, to_acct, amount):
@@ -431,7 +431,7 @@ def allowance(owner, spender):
     :return: the allowed amount of tokens
     """
     key = concat(concat(APPROVE_KEY, owner), spender)
-    return Get(ctx, key)
+    return Get(ctx, key) + 0
 
 
 def upgrade(code):
