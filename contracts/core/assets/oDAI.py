@@ -10,11 +10,12 @@ from ontology.interop.Ontology.Runtime import Base58ToAddress
 
 TransferEvent = RegisterAction("transfer", "from", "to", "amount")
 ApprovalEvent = RegisterAction("approval", "owner", "spender", "amount")
+TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwner")
 
 ctx = GetContext()
 
-NAME = 'oDai'
-SYMBOL = 'oDai'
+NAME = 'oDAI'
+SYMBOL = 'oDAI'
 DECIMALS = 18
 FACTOR = 1000000000000000000
 Operator = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")
@@ -24,6 +25,7 @@ APPROVE_PREFIX = bytearray(b'\x02')
 SUPPLY_KEY = 'TotalSupply'
 
 PROXY_HASH_KEY = "Proxy"
+OWNER_KEY = "Owner"
 
 
 def Main(operation, args):
@@ -32,6 +34,12 @@ def Main(operation, args):
     :param args:
     :return:
     """
+    if operation == 'init':
+        return init()
+    if operation == 'transferOwnership':
+        return transferOwnership(args[0])
+    if operation == 'getOwner':
+        return getOwner()
     if operation == 'delegateToProxy':
         return delegateToProxy(args[0], args[1])
     if operation == 'name':
@@ -78,6 +86,23 @@ def Main(operation, args):
     return False
 
 
+def init():
+    assert (CheckWitness(Operator))
+    assert (len(getOwner()) == 0)
+    Put(GetContext(), OWNER_KEY, Operator)
+    return True
+
+def transferOwnership(newOwner):
+    oldOwner = getOwner()
+    assert (CheckWitness(oldOwner))
+    assert (len(newOwner) == 20 and newOwner != ZERO_ADDRESS)
+    Put(GetContext(), OWNER_KEY, newOwner)
+    TransferOwnershipEvent(oldOwner, newOwner)
+    return True
+
+def getOwner():
+    return Get(GetContext(), OWNER_KEY)
+
 def delegateToProxy(proxyReversedHash, amount):
     """
     initialize the contract, put some important info into the storage in the blockchain
@@ -95,7 +120,6 @@ def delegateToProxy(proxyReversedHash, amount):
     Put(ctx, SUPPLY_KEY, totalSupply() + amount)
     TransferEvent("", proxyReversedHash, amount)
     return True
-
 
 def name():
     """
