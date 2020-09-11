@@ -375,7 +375,6 @@ def approve(owner, spender, amount):
     assert (not isPaused())
     assert (isAddress(spender))
     assert (CheckWitness(owner))
-    assert (balanceOf(owner) >= amount)
 
     Put(ctx, concat(concat(APPROVE_KEY, owner), spender), amount)
 

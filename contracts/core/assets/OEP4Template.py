@@ -189,7 +189,6 @@ def approve(owner, spender, amount):
     assert (len(spender) == 20)
     assert (CheckWitness(owner))
     assert (amount >= 0)
-    assert (amount <= balanceOf(owner))
 
     key = concat(concat(APPROVE_PREFIX, owner), spender)
     Put(ctx, key, amount)
