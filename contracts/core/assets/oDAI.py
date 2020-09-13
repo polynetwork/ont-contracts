@@ -1,28 +1,32 @@
 OntCversion = '2.0.0'
 """
-A token template of of OEP-4
+oDai denotes the cross chain Dai asset on Ontology, which is same as DAI in Ethereum
 """
 from ontology.interop.System.Storage import GetContext, Get, Put, Delete
-from ontology.interop.System.Runtime import Notify, CheckWitness, GetTime
+from ontology.interop.System.Runtime import CheckWitness
 from ontology.interop.System.Action import RegisterAction
 from ontology.builtins import concat
 from ontology.interop.Ontology.Runtime import Base58ToAddress
 
 TransferEvent = RegisterAction("transfer", "from", "to", "amount")
 ApprovalEvent = RegisterAction("approval", "owner", "spender", "amount")
+TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwner")
 
 ctx = GetContext()
 
-NAME = 'OEP4 Template'
-SYMBOL = 'OEP4T'
-DECIMALS = 9
-FACTOR = 1000000000
-OWNER = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")
-
-TOTAL_AMOUNT = 10000
+NAME = 'oDAI'
+SYMBOL = 'oDAI'
+DECIMALS = 18
+FACTOR = 1000000000000000000
+Operator = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")
+CROSS_CHAIN_CONTRACT_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x09')
+ZERO_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 BALANCE_PREFIX = bytearray(b'\x01')
-APPROVE_PREFIX = b'\x02'
+APPROVE_PREFIX = bytearray(b'\x02')
 SUPPLY_KEY = 'TotalSupply'
+
+PROXY_HASH_KEY = "Proxy"
+OWNER_KEY = "Owner"
 
 
 def Main(operation, args):
@@ -31,9 +35,14 @@ def Main(operation, args):
     :param args:
     :return:
     """
-    # 'init' has to be invokded first after deploying the contract to store the necessary and important info in the blockchain
     if operation == 'init':
         return init()
+    if operation == 'transferOwnership':
+        return transferOwnership(args[0])
+    if operation == 'getOwner':
+        return getOwner()
+    if operation == 'delegateToProxy':
+        return delegateToProxy(args[0], args[1])
     if operation == 'name':
         return name()
     if operation == 'symbol':
@@ -73,25 +82,45 @@ def Main(operation, args):
         spender = args[1]
         return allowance(owner, spender)
 
+    if operation == "getProxyHash":
+        return getProxyHash()
     return False
 
 
 def init():
+    assert (CheckWitness(Operator))
+    assert (len(getOwner()) == 0)
+    Put(GetContext(), OWNER_KEY, Operator)
+    return True
+
+def transferOwnership(newOwner):
+    oldOwner = getOwner()
+    assert (CheckWitness(oldOwner))
+    assert (len(newOwner) == 20 and newOwner != ZERO_ADDRESS)
+    Put(GetContext(), OWNER_KEY, newOwner)
+    TransferOwnershipEvent(oldOwner, newOwner)
+    return True
+
+def getOwner():
+    return Get(GetContext(), OWNER_KEY)
+
+def delegateToProxy(proxyReversedHash, amount):
     """
     initialize the contract, put some important info into the storage in the blockchain
     :return:
     """
-    assert (len(OWNER) == 20)
-    assert (not Get(ctx, SUPPLY_KEY))
+    assert (CheckWitness(getOwner()))
 
-    total = TOTAL_AMOUNT * FACTOR
-    Put(ctx, SUPPLY_KEY, total)
-    Put(ctx, concat(BALANCE_PREFIX, OWNER), total)
+    storedProxy = getProxyHash()
+    if not storedProxy:
+        Put(ctx, PROXY_HASH_KEY, proxyReversedHash)
+    else:
+        assert (proxyReversedHash == storedProxy)
 
-    TransferEvent("", OWNER, total)
-
+    Put(ctx, concat(BALANCE_PREFIX, proxyReversedHash), balanceOf(proxyReversedHash) + amount)
+    Put(ctx, SUPPLY_KEY, totalSupply() + amount)
+    TransferEvent("", proxyReversedHash, amount)
     return True
-
 
 def name():
     """
@@ -249,3 +278,7 @@ def allowance(owner, spender):
     """
     key = concat(concat(APPROVE_PREFIX, owner), spender)
     return Get(ctx, key) + 0
+
+
+def getProxyHash():
+    return Get(ctx, PROXY_HASH_KEY)

@@ -11,6 +11,7 @@ from ontology.interop.System.ExecutionEngine import GetExecutingScriptHash
 
 TransferEvent = RegisterAction("transfer", "from", "to", "amount")
 ApprovalEvent = RegisterAction("approval", "owner", "spender", "amount")
+TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwner")
 
 ctx = GetContext()
 
@@ -20,11 +21,13 @@ DECIMALS = 8
 FACTOR = 100000000
 MaxSupply = 100000000
 Operator = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")
+ZERO_ADDRESS = bytearray(b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
 BALANCE_PREFIX = bytearray(b'\x01')
 APPROVE_PREFIX = bytearray(b'\x02')
 SUPPLY_KEY = 'TotalSupply'
 
 PROXY_HASH_KEY = "Proxy"
+OWNER_KEY = "Owner"
 SelfContractAddress = GetExecutingScriptHash()
 
 def Main(operation, args):
@@ -34,6 +37,12 @@ def Main(operation, args):
     :return:
     """
     # 'init' has to be invokded first after deploying the contract to store the necessary and important info in the blockchain
+    if operation == 'init':
+        return init()
+    if operation == 'transferOwnership':
+        return transferOwnership(args[0])
+    if operation == 'getOwner':
+        return getOwner()
     if operation == 'delegateToProxy':
         return delegateToProxy(args[0], args[1])
     if operation == 'name':
@@ -79,13 +88,29 @@ def Main(operation, args):
         return getProxyHash()
     return False
 
+def init():
+    assert (CheckWitness(Operator))
+    assert (len(getOwner()) == 0)
+    Put(GetContext(), OWNER_KEY, Operator)
+    return True
+
+def transferOwnership(newOwner):
+    oldOwner = getOwner()
+    assert (CheckWitness(oldOwner))
+    assert (len(newOwner) == 20 and newOwner != ZERO_ADDRESS)
+    Put(GetContext(), OWNER_KEY, newOwner)
+    TransferOwnershipEvent(oldOwner, newOwner)
+    return True
+
+def getOwner():
+    return Get(GetContext(), OWNER_KEY)
 
 def delegateToProxy(proxyReversedHash, amount):
     """
     initialize the contract, put some important info into the storage in the blockchain
     :return:
     """
-    assert (CheckWitness(Operator))
+    assert (CheckWitness(getOwner()))
 
     storedProxy = getProxyHash()
     if not storedProxy:
@@ -118,14 +143,14 @@ def decimals():
     """
     :return: the decimals of the token
     """
-    return DECIMALS
+    return DECIMALS + 0
 
 
 def totalSupply():
     """
     :return: the total supply of the token
     """
-    return Get(ctx, SUPPLY_KEY)
+    return Get(ctx, SUPPLY_KEY) + 0
 
 
 def balanceOf(account):
@@ -134,7 +159,7 @@ def balanceOf(account):
     :return: the token balance of account
     """
     assert (len(account) == 20)
-    return Get(ctx, concat(BALANCE_PREFIX, account))
+    return Get(ctx, concat(BALANCE_PREFIX, account)) + 0
 
 
 def transfer(from_acct, to_acct, amount):
@@ -201,7 +226,6 @@ def approve(owner, spender, amount):
     assert (len(spender) == 20)
     assert (CheckWitness(owner))
     assert (amount >= 0)
-    assert (amount <= balanceOf(owner))
 
     key = concat(concat(APPROVE_PREFIX, owner), spender)
     Put(ctx, key, amount)
@@ -261,7 +285,7 @@ def allowance(owner, spender):
     :return: the allowed amount of tokens
     """
     key = concat(concat(APPROVE_PREFIX, owner), spender)
-    return Get(ctx, key)
+    return Get(ctx, key) + 0
 
 
 def getProxyHash():
