@@ -122,7 +122,6 @@ def delegateToProxy(proxyReversedHash, amount):
     Put(ctx, SUPPLY_KEY, totalSupply() + amount)
     TransferEvent("", proxyReversedHash, amount)
 
-
     return True
 
 
@@ -144,7 +143,7 @@ def decimals():
     """
     :return: the decimals of the token
     """
-    return DECIMALS
+    return DECIMALS + 0
 
 
 def totalSupply():

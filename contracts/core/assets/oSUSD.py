@@ -108,7 +108,6 @@ def delegateToProxy(proxyReversedHash, amount):
     :return:
     """
     assert (CheckWitness(getOwner()))
-
     storedProxy = getProxyHash()
     if not storedProxy:
         Put(ctx, PROXY_HASH_KEY, proxyReversedHash)
@@ -139,7 +138,7 @@ def decimals():
     """
     :return: the decimals of the token
     """
-    return DECIMALS
+    return DECIMALS + 0
 
 
 def totalSupply():

@@ -138,7 +138,7 @@ def decimals():
     """
     :return: the decimals of the token
     """
-    return DECIMALS
+    return DECIMALS + 0
 
 
 def totalSupply():
