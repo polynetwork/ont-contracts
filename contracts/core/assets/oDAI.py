@@ -14,7 +14,7 @@ TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwn
 
 ctx = GetContext()
 
-NAME = 'pDAI OEP4'
+NAME = 'pDAI'
 SYMBOL = 'pDAI'
 DECIMALS = 18
 FACTOR = 1000000000000000000
