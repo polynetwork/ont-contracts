@@ -14,7 +14,7 @@ TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwn
 
 ctx = GetContext()
 
-NAME = 'pPAX OEP4'
+NAME = 'pPAX'
 SYMBOL = 'pPAX'
 DECIMALS = 6
 FACTOR = 1000000
