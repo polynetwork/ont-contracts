@@ -14,7 +14,7 @@ TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwn
 
 ctx = GetContext()
 
-NAME = 'pUSDC OEP4'
+NAME = 'pUSDC'
 SYMBOL = 'pUSDC'
 DECIMALS = 6
 FACTOR = 1000000
