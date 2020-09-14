@@ -14,8 +14,8 @@ TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwn
 
 ctx = GetContext()
 
-NAME = 'oETH'
-SYMBOL = 'oETH'
+NAME = 'pETH'
+SYMBOL = 'pETH'
 DECIMALS = 18
 FACTOR = 1000000000000000000
 Operator = Base58ToAddress("ANXE3XovCwBH1ckQnPc6vKYiTwRXyrVToD")
