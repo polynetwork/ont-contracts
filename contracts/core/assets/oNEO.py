@@ -15,8 +15,8 @@ TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwn
 
 ctx = GetContext()
 
-NAME = 'oNEO'
-SYMBOL = 'oNEO'
+NAME = 'pNEO'
+SYMBOL = 'pNEO'
 DECIMALS = 8
 FACTOR = 100000000
 MaxSupply = 100000000
