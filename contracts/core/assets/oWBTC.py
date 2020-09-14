@@ -14,7 +14,7 @@ TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwn
 
 ctx = GetContext()
 
-NAME = 'pWBTC'
+NAME = 'pWBTC OEP4'
 SYMBOL = 'pWBTC'
 DECIMALS = 8
 FACTOR = 100000000
