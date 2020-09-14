@@ -14,8 +14,8 @@ TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwn
 
 ctx = GetContext()
 
-NAME = 'oPAX'
-SYMBOL = 'oPAX'
+NAME = 'pPAX'
+SYMBOL = 'pPAX'
 DECIMALS = 6
 FACTOR = 1000000
 Operator = Base58ToAddress("AQf4Mzu1YJrhz9f3aRkkwSm9n3qhXGSh4p")
