@@ -9,7 +9,7 @@ from ontology.interop.Ontology.Runtime import Base58ToAddress
 from ontology.interop.System.Storage import Put, GetContext, Get
 from ontology.interop.System.ExecutionEngine import GetExecutingScriptHash
 from ontology.interop.System.Runtime import CheckWitness, Notify, Serialize, Deserialize
-from ontology.builtins import concat, state, append
+from ontology.builtins import concat, state, append, remove
 from ontology.libont import bytearray_reverse
 from ontology.interop.System.App import DynamicAppCall
 from ontology.libont import AddressFromVmCode
@@ -77,6 +77,16 @@ def Main(operation, args):
         return unlock(params, fromContractAddr, fromChainId)
     if operation == "getBalanceFor":
         return getBalanceFor(args[0])
+    if operation == "removeFromAssetFromList":
+        assert (len(args) == 1)
+        index = args[0]
+        return removeFromAssetFromList(index)
+    if operation == "addFromAssetFromList":
+        assert (len(args) == 1)
+        fromAssetHash = args[0]
+        return addFromAssetFromList(fromAssetHash)
+    if operation == "getFromAssetHashList":
+        return getFromAssetHashList()
     if operation == "upgrade":
         assert (len(args) == 7)
         code = args[0]
@@ -189,6 +199,37 @@ def getBalanceFor(_assetAddress):
     else:
         return DynamicAppCall(_assetAddress, "balanceOf", [SelfContractAddress])
 
+
+def removeFromAssetFromList(index):
+    assert (CheckWitness(Get(GetContext(), OPERATOR_PREFIX)))
+    fahListInfo = Get(GetContext(), FROM_ASSET_LIST_KEY)
+    if not fahListInfo:
+        return True
+    fahList = Deserialize(fahListInfo)
+    fahList.remove(index)
+    Put(GetContext(), FROM_ASSET_LIST_KEY, Serialize(fahList))
+    Notify(["removeFromAssetFromList", index])
+    return True
+
+def addFromAssetFromList(fromAssetHash):
+    assert (CheckWitness(Get(GetContext(), OPERATOR_PREFIX)))
+    fahListInfo = Get(GetContext(), FROM_ASSET_LIST_KEY)
+    fahList = []
+    if not fahListInfo:
+        fahList.append(fromAssetHash)
+    else:
+        fahList = Deserialize(fahListInfo)
+        fahList.append(fromAssetHash)
+    Put(GetContext(), FROM_ASSET_LIST_KEY, Serialize(fahList))
+    Notify(["addFromAssetFromList", fromAssetHash])
+    return True
+
+def getFromAssetHashList():
+    fahListInfo = Get(GetContext(), FROM_ASSET_LIST_KEY)
+    if not fahListInfo:
+        return []
+    return Deserialize(fahListInfo)
+
 def _serialzieArgs(argsList):
     buff = None
     assetHash = argsList[0]
@@ -272,11 +313,13 @@ def _tryUnboundOng():
         return Invoke(0, ONG_ADDRESS, 'transferFrom', params)
     return True
 
+
+
 def _addFromAssetHash(fromAssetHash):
     fahListInfo = Get(GetContext(), FROM_ASSET_LIST_KEY)
     fahList = []
     if len(fahListInfo) == 0:
-        fahList = [fromAssetHash]
+        fahList = []
     else:
         fahList = Deserialize(fahListInfo)
     # check exist in current list
