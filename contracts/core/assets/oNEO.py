@@ -15,7 +15,7 @@ TransferOwnershipEvent = RegisterAction("transferOwnership", "oldOwner", "newOwn
 
 ctx = GetContext()
 
-NAME = 'pNEO'
+NAME = 'pNEO OEP4'
 SYMBOL = 'pNEO'
 DECIMALS = 8
 FACTOR = 100000000
