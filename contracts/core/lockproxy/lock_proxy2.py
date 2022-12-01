@@ -120,7 +120,7 @@ def setCCM(CCMAddress):
 
 def bindProxyHash(toChainId, targetProxyHash):
     assert (CheckWitness(Get(GetContext(), OPERATOR_PREFIX)))
-    Put(GetContext(), PROXY_HASH, targetProxyHash)
+    Put(GetContext(), concat(PROXY_HASH, toChainId), targetProxyHash)
     Notify(["bindProxyHash", toChainId, targetProxyHash])
     return True
 
