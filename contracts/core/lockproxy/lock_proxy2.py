@@ -177,21 +177,21 @@ def lock(fromAssetHash, fromAddress, toChainId, toAddress, amount):
     assert (len(toProxyHash) == 32)
 
     buff = b'\x00'
-    buff = WriteByte(b'\x01')
+    buff = WriteByte(b'\x01', buff)
     buff = WriteUint32(len("crossChain"), buff)
     buff = WriteBytes("crossChain", buff)
     
-    buff = WriteByte(b'\x04')
+    buff = WriteByte(b'\x04', buff)
     buff = WriteBytes(_intTobytes(toChainId,16), buff)
     
-    buff = WriteByte(b'\x05')
+    buff = WriteByte(b'\x05', buff)
     buff = WriteBytes(toProxyHash, buff)
     
-    buff = WriteByte(b'\x01')
+    buff = WriteByte(b'\x01', buff)
     buff = WriteUint32(len("unlock"), buff)
     buff = WriteBytes("unlock", buff)
     
-    buff = WriteByte(b'\x00')
+    buff = WriteByte(b'\x00', buff)
     buff = WriteUint32(len(inputArgs), buff)
     buff = WriteBytes(inputArgs, buff)  
   
