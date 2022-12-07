@@ -174,7 +174,6 @@ def lock(fromAssetHash, fromAddress, toChainId, toAddress, amount):
     toProxyHash = getProxyHash(toChainId)
     # make sure the toProxyHash is not empty
     assert (len(toProxyHash) != 0)
-    assert (len(toProxyHash) == 32)
 
     buff = b'\x00'
     buff = WriteByte(b'\x01', buff)
