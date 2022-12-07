@@ -176,6 +176,10 @@ def lock(fromAssetHash, fromAddress, toChainId, toAddress, amount):
     assert (len(toProxyHash) != 0)
 
     buff = b'\x00'
+    
+    buff = WriteByte(b'\x10', buff)
+    buff = WriteUint32(5, buff)
+    
     buff = WriteByte(b'\x01', buff)
     buff = WriteUint32(len("crossChain"), buff)
     buff = WriteBytes("crossChain", buff)
