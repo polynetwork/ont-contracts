@@ -185,9 +185,10 @@ def lock(fromAssetHash, fromAddress, toChainId, toAddress, amount):
     buff = WriteBytes("crossChain", buff)
     
     buff = WriteByte(b'\x04', buff)
-    buff = WriteBytes(_intTobytes(toChainId,16), buff)
+    buff = WriteBytes(_convertNumToBytes(toChainId, 16), buff)
     
-    buff = WriteByte(b'\x05', buff)
+    buff = WriteByte(b'\x00', buff)
+    buff = WriteUint32(len(toProxyHash), buff)
     buff = WriteBytes(toProxyHash, buff)
     
     buff = WriteByte(b'\x01', buff)
@@ -196,7 +197,7 @@ def lock(fromAssetHash, fromAddress, toChainId, toAddress, amount):
     
     buff = WriteByte(b'\x00', buff)
     buff = WriteUint32(len(inputArgs), buff)
-    buff = WriteBytes(inputArgs, buff)  
+    buff = WriteBytes(inputArgs, buff)
   
     assert (InvokeWasm(getCCM(), buff))
 
